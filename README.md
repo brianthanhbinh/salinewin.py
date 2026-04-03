@@ -8,3 +8,5 @@ Remember to press ESC to escape because it's a safe version
 Install python first: https://www.python.org/downloads/release/python-31213/
 
 Run the cmd in command prompt: pip install -r requirements.txt or run setup.bat
+
+ENJOY!
