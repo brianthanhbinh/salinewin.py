@@ -109,7 +109,7 @@ def icon_spam_trail():
         time.sleep(0.001)
 
 def audio_engine():
-    if not os.path.exists("audio.wav"): return
+    if not os.path.exists("audio.mp3"): return
     while not stop_flag.is_set():
         try: playsound("audio.mp3")
         except: break
