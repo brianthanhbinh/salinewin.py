@@ -9,4 +9,6 @@ Install python first: https://www.python.org/downloads/release/python-31213/
 
 Run the cmd in command prompt: pip install -r requirements.txt or run setup.bat
 
+Run salinewin.py
+
 ENJOY!
