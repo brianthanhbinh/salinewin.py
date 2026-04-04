@@ -254,7 +254,7 @@ if __name__ == '__main__':
     root = tk.Tk()
     root.withdraw()
     
-    if messagebox.askyesno("ETERNAL DESTRUCTION", "Start the Forever Chaos?"):
+    if messagebox.askyesno("Warning", "Esc+Space to exit, Esc to close bsod"):
         keyboard.add_hotkey('esc', on_esc)
         
         # Launch everything
